@@ -5,21 +5,25 @@ console.log('c=2');
 console.log(requestAnimationFrame);
 
 // 创建顶点着色器
-const vertexShaderSource = `
+const vertexShaderSource = `#version 300 es
+
     precision highp float;
     precision highp int;
+
     uniform vec2 iResolution;
     uniform float iTimeDelta;
     uniform float iTime;
     uniform int iFrame;
+    uniform mat4 iViewMatrix;
     uniform vec2 resolution;
     uniform float time;
-    uniform vec3 iMouse;
-    attribute vec4 aPosition;
-    attribute vec2 aTextureCoord;
-    varying vec2 vTextureCoord;
+
+    in vec4 aPosition;
+    in vec4 aTextureCoord;
+    out vec2 vTextureCoord;
+
     void main() {
-        vTextureCoord = aTextureCoord;
+        vTextureCoord = aTextureCoord.xy;
         gl_Position = aPosition;
     }
 `;
