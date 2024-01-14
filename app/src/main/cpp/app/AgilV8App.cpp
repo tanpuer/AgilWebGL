@@ -76,10 +76,10 @@ void AgilV8App::change(int width, int height, long time) {
 
 void AgilV8App::doFrame(long time) {
     globalTime = time;
-    if (mEGLCore == nullptr || FrameCallbackMap.empty()) {
+    if (mEGLCore == nullptr || frameCallbackMap.empty()) {
         return;
     }
-    for (auto callback: FrameCallbackMap) {
+    for (auto callback: frameCallbackMap) {
         const int argc = 0;
         v8::Local<v8::Value> argv[argc] = {};
         v8::Local<v8::Value> result;
@@ -90,7 +90,7 @@ void AgilV8App::doFrame(long time) {
 }
 
 void AgilV8App::destroy() {
-    FrameCallbackMap.clear();
+    frameCallbackMap.clear();
     mV8Runtime.reset(nullptr);
     mEGLCore.reset(nullptr);
 }
@@ -112,8 +112,8 @@ void AgilV8App::injectBrowserAPI() {
             }
     );
     mV8Runtime->injectObject("console", consoleMap, {});
-    mV8Runtime->injectFunction("requestAnimationFrame", requestAnimationFrameCallback, nullptr);
-    mV8Runtime->injectFunction("cancelAnimationFrame", cancelAnimationFrameCallback, nullptr);
+    mV8Runtime->injectFunction("requestAnimationFrame", requestAnimationFrameCallback, this);
+    mV8Runtime->injectFunction("cancelAnimationFrame", cancelAnimationFrameCallback, this);
 }
 
 void AgilV8App::injectWebGL() {

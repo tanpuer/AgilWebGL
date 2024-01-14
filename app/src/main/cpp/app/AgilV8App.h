@@ -34,6 +34,9 @@ public:
     static AssetManager *globalAssetManager;
     static long globalTime;
 
+    int FRAME_INDEX = 0;
+    std::map<int, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> frameCallbackMap;
+
 private:
 
     std::shared_ptr<AssetManager> mAssetManager;
@@ -45,6 +48,7 @@ private:
 
     std::unique_ptr<EGLCore> mEGLCore;
     int mWidth = 0, mHeight = 0;
+
 };
 
 
