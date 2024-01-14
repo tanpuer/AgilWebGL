@@ -14,10 +14,10 @@ auto glClearColorFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glClearColor Invalid argument"));
         return;
     }
-    auto r = static_cast<float >(v8::Local<v8::Number>::Cast(args[0])->Value());
-    auto g = static_cast<float >(v8::Local<v8::Number>::Cast(args[1])->Value());
-    auto b = static_cast<float >(v8::Local<v8::Number>::Cast(args[2])->Value());
-    auto a = static_cast<float >(v8::Local<v8::Number>::Cast(args[3])->Value());
+    auto r = static_cast<float >(args[0].As<v8::Number>()->Value());
+    auto g = static_cast<float >(args[1].As<v8::Number>()->Value());
+    auto b = static_cast<float >(args[2].As<v8::Number>()->Value());
+    auto a = static_cast<float >(args[3].As<v8::Number>()->Value());
     glClearColor(r, g, b, a);
     checkGLError("glClearColor");
 };

@@ -16,11 +16,11 @@ auto glTexImage2DFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glTexImage2D Invalid argument"));
         return;
     }
-    auto target = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto level = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
-    auto internalFormat = v8::Local<v8::Number>::Cast(args[2])->Int32Value();
-    auto format = v8::Local<v8::Number>::Cast(args[3])->Int32Value();
-    auto type = v8::Local<v8::Number>::Cast(args[4])->Int32Value();
+    auto target = args[0].As<v8::Number>()->Int32Value();
+    auto level = args[1].As<v8::Number>()->Int32Value();
+    auto internalFormat = args[2].As<v8::Number>()->Int32Value();
+    auto format = args[3].As<v8::Number>()->Int32Value();
+    auto type = args[4].As<v8::Number>()->Int32Value();
     if (args[5]->IsString()) {
         v8::String::Utf8Value value(isolate, args[5]);
         auto imagePathStr = std::string(*value, value.length());

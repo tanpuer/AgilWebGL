@@ -21,7 +21,7 @@ class AgilV8View @JvmOverloads constructor(
     override fun surfaceCreated(holder: SurfaceHolder) {
         engine.create(holder.surface)
 //        engine.executeJS("demo.js", "demo")
-        engine.executeJS("ocean.js", "ocean")
+        engine.executeJS("primitive.js", "primitive")
         created = true
         Choreographer.getInstance().postFrameCallback(this)
     }

@@ -13,7 +13,7 @@ auto glUseProgramFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glUseProgram Invalid argument"));
         return;
     }
-    auto program = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto program = args[0].As<v8::Number>()->Int32Value();
     glUseProgram(program);
 };
 

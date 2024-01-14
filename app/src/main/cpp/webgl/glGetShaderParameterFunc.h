@@ -15,8 +15,8 @@ auto glGetShaderParameterFunc = [](const v8::FunctionCallbackInfo<v8::Value> &ar
         return;
     }
     GLint compiled;
-    auto shader = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto pName = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
+    auto shader = args[0].As<v8::Number>()->Int32Value();
+    auto pName = args[1].As<v8::Number>()->Int32Value();
     glGetShaderiv(shader, pName, &compiled);
     args.GetReturnValue().Set(compiled);
 };

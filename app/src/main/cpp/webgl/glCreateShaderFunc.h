@@ -13,7 +13,7 @@ auto glCreateShaderFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glCreateShader Invalid argument"));
         return;
     }
-    auto type = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto type = args[0].As<v8::Number>()->Int32Value();
     auto result = glCreateShader(type);
     args.GetReturnValue().Set(result);
 };

@@ -14,12 +14,12 @@ auto glVertexAttribPointerFunc = [](const v8::FunctionCallbackInfo<v8::Value> &a
                 v8::String::NewFromUtf8(isolate, "glVertexAttribPointer Invalid argument"));
         return;
     }
-    auto position = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto size = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
-    auto type = v8::Local<v8::Number>::Cast(args[2])->Int32Value();
-    auto normalized = v8::Local<v8::Number>::Cast(args[3])->BooleanValue();
-    auto stride = v8::Local<v8::Number>::Cast(args[4])->Int32Value();
-    auto offset = v8::Local<v8::Number>::Cast(args[5])->Int32Value();
+    auto position = args[0].As<v8::Number>()->Int32Value();
+    auto size = args[1].As<v8::Number>()->Int32Value();
+    auto type = args[2].As<v8::Number>()->Int32Value();
+    auto normalized = args[3].As<v8::Number>()->Int32Value();
+    auto stride = args[4].As<v8::Number>()->Int32Value();
+    auto offset = args[5].As<v8::Number>()->Int32Value();
     glVertexAttribPointer(position, size, type, normalized, stride * sizeof(GLfloat), nullptr);
 };
 

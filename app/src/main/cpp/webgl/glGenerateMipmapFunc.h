@@ -14,7 +14,7 @@ auto glGenerateMipmapFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) 
                 v8::String::NewFromUtf8(isolate, "glGenerateMipmap Invalid argument"));
         return;
     }
-    auto target = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto target = args[0].As<v8::Number>()->Int32Value();;
     glGenerateMipmap(target);
 };
 

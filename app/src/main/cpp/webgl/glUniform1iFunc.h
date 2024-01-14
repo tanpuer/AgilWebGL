@@ -13,8 +13,8 @@ auto glUniform1iFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glUniform1i Invalid argument"));
         return;
     }
-    auto location = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto value = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
+    auto location = args[0].As<v8::Number>()->Int32Value();
+    auto value = args[1].As<v8::Number>()->Int32Value();
     glUniform1i(location, value);
 };
 

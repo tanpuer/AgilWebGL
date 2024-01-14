@@ -13,8 +13,8 @@ auto glBindBufferFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glBindBuffer Invalid argument"));
         return;
     }
-    auto target = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto buffer = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
+    auto target = args[0].As<v8::Number>()->Int32Value();;
+    auto buffer = args[1].As<v8::Number>()->Int32Value();;
     glBindBuffer(target, buffer);
 };
 

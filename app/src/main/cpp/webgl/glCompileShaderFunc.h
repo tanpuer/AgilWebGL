@@ -13,7 +13,7 @@ auto glCompileShaderFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glCompileShader Invalid argument"));
         return;
     }
-    auto shader = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto shader = args[0].As<v8::Number>()->Int32Value();;
     glCompileShader(shader);
     GLint compiled;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);

@@ -14,7 +14,7 @@ auto glGetAttribLocationFunc = [](const v8::FunctionCallbackInfo<v8::Value> &arg
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glGetAttribLocation Invalid argument"));
         return;
     }
-    auto program = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto program = args[0].As<v8::Number>()->Int32Value();
     v8::String::Utf8Value value(isolate, args[1]);
     auto nameStr = std::string(*value, value.length());
     const char *name = nameStr.c_str();

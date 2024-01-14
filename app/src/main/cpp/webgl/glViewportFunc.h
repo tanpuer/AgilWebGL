@@ -13,10 +13,10 @@ auto glViewportFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glViewport Invalid argument"));
         return;
     }
-    auto x = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto y = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
-    auto width = v8::Local<v8::Number>::Cast(args[2])->Int32Value();
-    auto height = v8::Local<v8::Number>::Cast(args[3])->Int32Value();
+    auto x = args[0].As<v8::Number>()->Int32Value();
+    auto y = args[1].As<v8::Number>()->Int32Value();
+    auto width = args[2].As<v8::Number>()->Int32Value();
+    auto height = args[3].As<v8::Number>()->Int32Value();
     glViewport(x, y, width, height);
 };
 

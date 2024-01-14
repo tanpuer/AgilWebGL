@@ -13,7 +13,7 @@ auto glClearFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glClear Invalid argument"));
         return;
     }
-    auto mask = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto mask = args[0].As<v8::Number>()->Int32Value();;
     glClear(mask);
 };
 

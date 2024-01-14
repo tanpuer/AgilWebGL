@@ -13,7 +13,7 @@ auto glEnableFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glEnable Invalid argument"));
         return;
     }
-    auto cap = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto cap = args[0].As<v8::Number>()->Int32Value();
     glEnable(cap);
 };
 

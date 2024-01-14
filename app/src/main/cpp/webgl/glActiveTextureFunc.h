@@ -14,7 +14,7 @@ auto glActiveTextureFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
                 v8::String::NewFromUtf8(isolate, "glActiveTexture Invalid argument"));
         return;
     }
-    auto texture = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
+    auto texture = args[0].As<v8::Number>()->Int32Value();
     glActiveTexture(texture);
 };
 

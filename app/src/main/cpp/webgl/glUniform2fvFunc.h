@@ -13,8 +13,8 @@ auto glUniform2fvFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         isolate->ThrowException(v8::String::NewFromUtf8(isolate, "glUniform2fv Invalid argument"));
         return;
     }
-    auto location = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto count = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
+    auto location = args[0].As<v8::Number>()->Int32Value();
+    auto count = args[1].As<v8::Number>()->Int32Value();
     auto float32Array = args[2].As<v8::Float32Array>();
     v8::Local<v8::ArrayBuffer> buffer = float32Array->Buffer();
     v8::ArrayBuffer::Contents contents = buffer->GetContents();

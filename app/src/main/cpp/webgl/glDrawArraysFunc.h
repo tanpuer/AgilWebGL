@@ -14,9 +14,9 @@ auto glDrawArraysFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
                 v8::String::NewFromUtf8(isolate, "glDrawArraysFunc Invalid argument"));
         return;
     }
-    auto mode = v8::Local<v8::Number>::Cast(args[0])->Int32Value();
-    auto first = v8::Local<v8::Number>::Cast(args[1])->Int32Value();
-    auto size = v8::Local<v8::Number>::Cast(args[2])->Int32Value();
+    auto mode = args[0].As<v8::Number>()->Int32Value();
+    auto first = args[1].As<v8::Number>()->Int32Value();
+    auto size = args[2].As<v8::Number>()->Int32Value();
     glDrawArrays(mode, first, size);
 };
 
