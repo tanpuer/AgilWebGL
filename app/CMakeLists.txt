@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 
 project("agilV8")
-set(V8_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/libs/v8/arm64-v8a)
+set(V8_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/libs/v8/${CMAKE_ANDROID_ARCH_ABI})
 
 include_directories(
         src/main/cpp
