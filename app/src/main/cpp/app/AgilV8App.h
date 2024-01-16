@@ -44,10 +44,14 @@ private:
 
     void injectBrowserAPI();
 
-    void injectWebGL();
+    void injectAgil();
+
+    v8::Local<v8::Object> injectWebGL();
 
     std::unique_ptr<EGLCore> mEGLCore;
     int mWidth = 0, mHeight = 0;
+
+    v8::Global<v8::Object> Agil;
 
 };
 

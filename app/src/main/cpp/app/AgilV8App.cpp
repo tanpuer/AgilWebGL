@@ -56,7 +56,7 @@ AgilV8App::~AgilV8App() {
 void AgilV8App::create(ANativeWindow *window) {
     mV8Runtime = std::make_unique<AgilV8Runtime>(mAssetManager);
     injectBrowserAPI();
-    injectWebGL();
+    injectAgil();
     mEGLCore = std::make_unique<EGLCore>();
     mEGLCore->createGLEnv(nullptr, window, 0, 0, false);
     mEGLCore->makeCurrent();
@@ -70,7 +70,7 @@ void AgilV8App::change(int width, int height, long time) {
             {"drawingBufferWidth",  width},
             {"drawingBufferHeight", height},
     };
-    mV8Runtime->injectNumberPropertiesToObject("gl", sizeMap);
+    mV8Runtime->injectNumberPropertiesToObject(mV8Runtime->global(), "gl", sizeMap);
     mEGLCore->swapBuffer();
 }
 
@@ -111,12 +111,46 @@ void AgilV8App::injectBrowserAPI() {
                     {"warn",  warnCallback},
             }
     );
-    mV8Runtime->injectObject("console", consoleMap, {});
+    mV8Runtime->injectObject(mV8Runtime->global(), "console", consoleMap,
+                             std::map<std::string, std::string>());
     mV8Runtime->injectFunction("requestAnimationFrame", requestAnimationFrameCallback, this);
     mV8Runtime->injectFunction("cancelAnimationFrame", cancelAnimationFrameCallback, this);
 }
 
-void AgilV8App::injectWebGL() {
+/**
+ * let gl = agil.createContext('webgl');
+ * gl.xxx
+ */
+void AgilV8App::injectAgil() {
+    auto createContext = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
+        auto data = v8::Local<v8::External>::Cast(args.Data());
+        auto app = static_cast<AgilV8App *>(data->Value());
+        assert(app);
+        assert(args.Length() == 1 && args[0]->IsString());
+        auto result = app->mV8Runtime->utf8(args[0].As<v8::String>());
+        if (result == "webgl") {
+            auto gl = app->injectWebGL();
+            args.GetReturnValue().Set(gl);
+        } else {
+            ALOGE("only support webgl context")
+            args.GetReturnValue().Set(v8::Undefined(app->mV8Runtime->getIsolate()));
+        }
+    };
+    std::map<std::string, v8::FunctionCallback> agilMap(
+            {
+                    {"createContext", createContext}
+            }
+    );
+    std::map<std::string, std::string> agilValue(
+            {
+                    {"version", "0.0.1"}
+            }
+    );
+    auto agil = mV8Runtime->injectObject(mV8Runtime->global(), "Agil", agilMap, agilValue, this);
+    Agil.Reset(mV8Runtime->getIsolate(), agil);
+}
+
+v8::Local<v8::Object> AgilV8App::injectWebGL() {
     std::map<std::string, v8::FunctionCallback> glMap(
             {
                     {"clearColor",              glClearColorFunc},
@@ -184,5 +218,5 @@ void AgilV8App::injectWebGL() {
                     {"STENCIL_TEST",         GL_STENCIL_TEST},
             }
     );
-    mV8Runtime->injectObject("gl", glMap, constMap);
+    return mV8Runtime->injectObject(mV8Runtime->global(), "gl", glMap, constMap);
 }

@@ -27,6 +27,7 @@ const vertexShaderSource = `#version 300 es
         gl_Position = aPosition;
     }
 `;
+let gl = Agil.createContext("webgl");
 const vertexShader = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(vertexShader, vertexShaderSource);
 gl.compileShader(vertexShader);

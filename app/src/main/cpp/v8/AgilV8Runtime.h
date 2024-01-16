@@ -23,8 +23,15 @@ public:
 
     v8::Isolate *getIsolate() const;
 
-    void injectObject(const char *name, std::map<std::string, v8::FunctionCallback> functionMap,
-                      std::map<std::string, int32_t> constMap);
+    v8::Local<v8::Object> injectObject(v8::Local<v8::Object> host, const char *name,
+                                       std::map<std::string, v8::FunctionCallback> functionMap,
+                                       std::map<std::string, int32_t> constMap,
+                                       void *any = nullptr);
+
+    v8::Local<v8::Object> injectObject(v8::Local<v8::Object> host, const char *name,
+                                       std::map<std::string, v8::FunctionCallback> functionMap,
+                                       std::map<std::string, std::string> constMap,
+                                       void *any = nullptr);
 
     void injectFunction(const char *name, v8::FunctionCallback callback, void *any);
 
@@ -34,9 +41,13 @@ public:
             int argc, v8::Local<v8::Value> argv[],
             v8::Local<v8::Value> result);
 
-    void injectNumberPropertiesToObject(const char *name, std::map<std::string, int> properties);
+    void injectNumberPropertiesToObject(v8::Local<v8::Object> host, const char *name, std::map<std::string, int> properties);
 
     void injectDate(std::function<void(v8::Isolate *)> registerObject);
+
+    std::string utf8(const v8::Local<v8::Value> &value);
+
+    v8::Local<v8::Object> global();
 
 private:
 

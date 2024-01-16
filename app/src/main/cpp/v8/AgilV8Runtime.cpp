@@ -98,16 +98,19 @@ v8::Isolate *AgilV8Runtime::getIsolate() const {
     return mIsolate;
 }
 
-void AgilV8Runtime::injectObject(const char *name,
-                                 std::map<std::string, v8::FunctionCallback> functionMap,
-                                 std::map<std::string, int32_t> constMap) {
+v8::Local<v8::Object> AgilV8Runtime::injectObject(v8::Local<v8::Object> host, const char *name,
+                                                  std::map<std::string, v8::FunctionCallback> functionMap,
+                                                  std::map<std::string, int32_t> constMap,
+                                                  void *any) {
     v8::Locker locker(mIsolate);
     v8::Isolate::Scope scopedIsolate(mIsolate);
     v8::HandleScope scopedHandle(mIsolate);
     v8::Context::Scope scopedContext(mContext.Get(mIsolate));
     v8::Local<v8::Object> object = v8::Object::New(mIsolate);
     for (std::pair<std::string, v8::FunctionCallback> pair: functionMap) {
-        auto function = v8::FunctionTemplate::New(mIsolate, pair.second)->GetFunction();
+        v8::Local<v8::External> external_context_data = v8::External::New(mIsolate, any);
+        auto function = v8::FunctionTemplate::New(mIsolate, pair.second,
+                                                  external_context_data)->GetFunction();
         auto result = object->Set(v8::String::NewFromUtf8(mIsolate, pair.first.c_str()), function);
         ALOGD("%s set %s result: %d", name, pair.first.c_str(), result)
     }
@@ -118,6 +121,33 @@ void AgilV8Runtime::injectObject(const char *name,
     auto global = mContext.Get(mIsolate)->Global();
     auto result = global->Set(v8::String::NewFromUtf8(mIsolate, name), object);
     ALOGD("global set object: %s result: %d", name, result)
+    return object;
+}
+
+v8::Local<v8::Object> AgilV8Runtime::injectObject(v8::Local<v8::Object> host, const char *name,
+                                                  std::map<std::string, v8::FunctionCallback> functionMap,
+                                                  std::map<std::string, std::string> constMap,
+                                                  void *any) {
+    v8::Locker locker(mIsolate);
+    v8::Isolate::Scope scopedIsolate(mIsolate);
+    v8::HandleScope scopedHandle(mIsolate);
+    v8::Context::Scope scopedContext(mContext.Get(mIsolate));
+    v8::Local<v8::Object> object = v8::Object::New(mIsolate);
+    for (std::pair<std::string, v8::FunctionCallback> pair: functionMap) {
+        v8::Local<v8::External> external_context_data = v8::External::New(mIsolate, any);
+        auto function = v8::FunctionTemplate::New(mIsolate, pair.second,
+                                                  external_context_data)->GetFunction();
+        auto result = object->Set(v8::String::NewFromUtf8(mIsolate, pair.first.c_str()), function);
+        ALOGD("%s set %s result: %d", name, pair.first.c_str(), result)
+    }
+    for (std::pair<std::string, std::string> pair: constMap) {
+        object->Set(v8::String::NewFromUtf8(mIsolate, pair.first.c_str()),
+                    v8::String::NewFromUtf8(mIsolate, pair.second.c_str()));
+    }
+    auto global = mContext.Get(mIsolate)->Global();
+    auto result = global->Set(v8::String::NewFromUtf8(mIsolate, name), object);
+    ALOGD("global set object: %s result: %d", name, result)
+    return object;
 }
 
 void AgilV8Runtime::injectFunction(const char *name, v8::FunctionCallback callback, void *any) {
@@ -125,8 +155,7 @@ void AgilV8Runtime::injectFunction(const char *name, v8::FunctionCallback callba
     v8::Isolate::Scope scopedIsolate(mIsolate);
     v8::HandleScope scopedHandle(mIsolate);
     v8::Context::Scope scopedContext(mContext.Get(mIsolate));
-    v8::Local<v8::External> external_context_data =
-            v8::External::New(mIsolate, any);
+    v8::Local<v8::External> external_context_data = v8::External::New(mIsolate, any);
     v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(mIsolate, callback,
                                                                              external_context_data);
     v8::Local<v8::Function> function = funcTemplate->GetFunction();
@@ -157,7 +186,7 @@ AgilV8Runtime::performFunction(
     return result;
 }
 
-void AgilV8Runtime::injectNumberPropertiesToObject(const char *name,
+void AgilV8Runtime::injectNumberPropertiesToObject(v8::Local<v8::Object> host, const char *name,
                                                    std::map<std::string, int> properties) {
     v8::Locker locker(mIsolate);
     v8::Isolate::Scope scopedIsolate(mIsolate);
@@ -178,10 +207,27 @@ void AgilV8Runtime::injectNumberPropertiesToObject(const char *name,
     }
 }
 
-void AgilV8Runtime::injectDate(std::function<void(v8::Isolate*)> registerObject) {
+void AgilV8Runtime::injectDate(std::function<void(v8::Isolate *)> registerObject) {
     v8::Locker locker(mIsolate);
     v8::Isolate::Scope scopedIsolate(mIsolate);
     v8::HandleScope scopedHandle(mIsolate);
     v8::Context::Scope scopedContext(mContext.Get(mIsolate));
     registerObject(mIsolate);
+}
+
+std::string AgilV8Runtime::utf8(const v8::Local<v8::Value> &value) {
+    v8::Locker locker(mIsolate);
+    v8::Isolate::Scope scopedIsolate(mIsolate);
+    v8::HandleScope scopedHandle(mIsolate);
+    v8::Context::Scope scopedContext(mContext.Get(mIsolate));
+    v8::String::Utf8Value utf8Value(mIsolate, value);
+    return std::string(*utf8Value, utf8Value.length());
+}
+
+v8::Local<v8::Object> AgilV8Runtime::global() {
+    v8::Locker locker(mIsolate);
+    v8::Isolate::Scope scopedIsolate(mIsolate);
+    v8::HandleScope scopedHandle(mIsolate);
+    v8::Context::Scope scopedContext(mContext.Get(mIsolate));
+    return mContext.Get(mIsolate)->Global();
 }
