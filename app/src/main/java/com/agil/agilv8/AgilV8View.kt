@@ -17,13 +17,17 @@ class AgilV8View @JvmOverloads constructor(
     private val engine = AgilV8Engine()
     private var created = false
     private var start = System.currentTimeMillis()
+    private var executed = false
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         engine.create(holder.surface)
-//        engine.executeJS("demo.js", "demo")
-        engine.executeJS("primitive.js", "primitive")
         created = true
         Choreographer.getInstance().postFrameCallback(this)
+        if (!executed) {
+            executed = true
+//            engine.executeJS("demo.js", "demo")
+            engine.executeJS("primitive.js", "primitive")
+        }
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -45,6 +49,7 @@ class AgilV8View @JvmOverloads constructor(
 
     fun release() {
         engine.release()
+        executed = false
     }
 
 }

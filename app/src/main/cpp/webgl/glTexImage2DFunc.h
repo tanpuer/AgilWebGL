@@ -29,7 +29,9 @@ auto glTexImage2DFunc = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         //todo 异步加载图片
         int x, y, comp;
         auto fileloc = str;
-        auto assetManager = AgilV8App::globalAssetManager;
+        auto app = static_cast<AgilV8App *>(v8::Local<v8::External>::Cast(args.Data())->Value());
+        assert(app);
+        auto assetManager = app->mAssetManager;
         if (assetManager == nullptr) {
             isolate->ThrowException(
                     v8::String::NewFromUtf8(isolate, "glTexImage2D unsupported argument"));

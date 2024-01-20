@@ -41,22 +41,22 @@
 #include "browser/timer.h"
 #include "browser/animationFrame.h"
 
-AssetManager *AgilV8App::globalAssetManager = nullptr;
 long AgilV8App::globalTime = 0L;
 
 AgilV8App::AgilV8App(JNIEnv *env, jobject javaAssetManager) {
     mAssetManager = std::make_shared<AssetManager>(env, javaAssetManager);
-    globalAssetManager = mAssetManager.get();
 }
 
 AgilV8App::~AgilV8App() {
-    globalAssetManager = nullptr;
+    if (mEGLCore != nullptr) {
+        mEGLCore.reset(nullptr);
+    }
+    frameCallbackMap.clear();
+    mV8Runtime.reset(nullptr);
 }
 
 void AgilV8App::create(ANativeWindow *window) {
     mV8Runtime = std::make_unique<AgilV8Runtime>(mAssetManager);
-    injectBrowserAPI();
-    injectAgil();
     mEGLCore = std::make_unique<EGLCore>();
     mEGLCore->createGLEnv(nullptr, window, 0, 0, false);
     mEGLCore->makeCurrent();
@@ -90,12 +90,12 @@ void AgilV8App::doFrame(long time) {
 }
 
 void AgilV8App::destroy() {
-    frameCallbackMap.clear();
-    mV8Runtime.reset(nullptr);
     mEGLCore.reset(nullptr);
 }
 
 bool AgilV8App::executeScript(const char *path, const char *moduleName) {
+    injectBrowserAPI();
+    injectAgil();
     std::string code = mAssetManager->readFile(path);
     auto result = mV8Runtime->evaluateJavaScript(code, moduleName);
     checkGLError("executeScript");

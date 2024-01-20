@@ -30,16 +30,16 @@ public:
     void destroy();
 
     void doFrame(long time);
-
-    static AssetManager *globalAssetManager;
+    
     static long globalTime;
 
     int FRAME_INDEX = 0;
     std::map<int, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> frameCallbackMap;
 
+    std::shared_ptr<AssetManager> mAssetManager;
+
 private:
 
-    std::shared_ptr<AssetManager> mAssetManager;
     std::unique_ptr<AgilV8Runtime> mV8Runtime;
 
     void injectBrowserAPI();
