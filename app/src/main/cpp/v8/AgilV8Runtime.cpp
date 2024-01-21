@@ -6,8 +6,8 @@
 #include "native_log.h"
 #include "libplatform/libplatform.h"
 
-AgilV8Runtime::AgilV8Runtime(std::shared_ptr<AssetManager> assetManager) {
-    mAssetManager = assetManager;
+AgilV8Runtime::AgilV8Runtime(std::shared_ptr<AssetManager> assetManager)
+        : mAssetManager(assetManager) {
     v8::V8::SetFlagsFromString("--nolazy");
     v8::V8::Initialize();
     arrayBufferAllocator_.reset(
@@ -45,12 +45,11 @@ bool AgilV8Runtime::evaluateJavaScript(const std::string &buffer, const std::str
     v8::Isolate::Scope scopedIsolate(mIsolate);
     v8::HandleScope scopedHandle(mIsolate);
     v8::Context::Scope scopedContext(mContext.Get(mIsolate));
-    v8::Local<v8::String> string;
-    v8::String::NewFromUtf8(
+    auto string = v8::String::NewFromUtf8(
             mIsolate,
             reinterpret_cast<const char *>(buffer.c_str()),
             v8::NewStringType::kNormal,
-            buffer.size()).ToLocal(&string);
+            buffer.size()).ToLocalChecked();
     return executeScript(string, sourceURL);
 }
 
@@ -168,7 +167,7 @@ void AgilV8Runtime::injectFunction(const char *name, v8::FunctionCallback callba
 v8::Local<v8::Value>
 AgilV8Runtime::performFunction(
         v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>> function, int argc,
-        v8::Local<v8::Value> argv[], v8::Local<v8::Value> result) {
+        v8::Local<v8::Value> argv[]) {
     v8::Locker locker(mIsolate);
     v8::Isolate::Scope scopedIsolate(mIsolate);
     v8::HandleScope scopedHandle(mIsolate);
@@ -176,14 +175,15 @@ AgilV8Runtime::performFunction(
 
     v8::Local<v8::Function> callback = v8::Local<v8::Function>::New(mIsolate, function);
     v8::TryCatch try_catch(mIsolate);
-    callback->Call(mIsolate->GetCurrentContext(), mIsolate->GetCurrentContext()->Global(), 0,
-                   nullptr);
+    auto result = callback->Call(mIsolate->GetCurrentContext(),
+                                 mIsolate->GetCurrentContext()->Global(), argc,
+                                 argv);
     if (try_catch.HasCaught()) {
         v8::String::Utf8Value exception(mIsolate, try_catch.Exception());
         auto info = std::string(*exception, exception.length());
         ALOGD("performFunction error %s", info.c_str())
     }
-    return result;
+    return result.ToLocalChecked();
 }
 
 void AgilV8Runtime::injectNumberPropertiesToObject(v8::Local<v8::Object> host, const char *name,

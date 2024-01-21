@@ -1,9 +1,3 @@
-var a = 1;
-var b = 1;
-let c = a + b;
-console.log('c=2');
-console.log(requestAnimationFrame);
-
 // 创建顶点着色器
 const vertexShaderSource = `#version 300 es
 
@@ -759,12 +753,6 @@ function setUniforms() {
     let iMouse = gl.getUniformLocation(program, 'iMouse');
     gl.uniform3fv(iMouse, 1, new Float32Array(mouse));
     //6. iMouseButton ignore
-
-    //7. iViewMatrix
-//    let iViewMatrix = gl.getUniformLocation(program, 'iViewMatrix');
-//    setIdentityM(&matrix);
-//    glUniformMatrix4fv(iViewMatrix, 1, GL_FALSE, matrix.m);
-    //8. resolution
     gl.uniform2fv(gl.getUniformLocation(program, 'resolution'), 1, new Float32Array(resolution));
     //9. time
     let time = gl.getUniformLocation(program, 'time');

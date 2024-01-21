@@ -41,8 +41,6 @@
 #include "browser/timer.h"
 #include "browser/animationFrame.h"
 
-long AgilV8App::globalTime = 0L;
-
 AgilV8App::AgilV8App(JNIEnv *env, jobject javaAssetManager) {
     mAssetManager = std::make_shared<AssetManager>(env, javaAssetManager);
 }
@@ -56,16 +54,13 @@ AgilV8App::~AgilV8App() {
 }
 
 void AgilV8App::create(ANativeWindow *window) {
-    mV8Runtime = std::make_unique<AgilV8Runtime>(mAssetManager);
     mEGLCore = std::make_unique<EGLCore>();
     mEGLCore->createGLEnv(nullptr, window, 0, 0, false);
     mEGLCore->makeCurrent();
 }
 
 void AgilV8App::change(int width, int height, long time) {
-    globalTime = time;
-    mWidth = width;
-    mHeight = height;
+    mGlobalTime = time;
     std::map<std::string, int> sizeMap = {
             {"drawingBufferWidth",  width},
             {"drawingBufferHeight", height},
@@ -75,15 +70,14 @@ void AgilV8App::change(int width, int height, long time) {
 }
 
 void AgilV8App::doFrame(long time) {
-    globalTime = time;
+    mGlobalTime = time;
     if (mEGLCore == nullptr || frameCallbackMap.empty()) {
         return;
     }
     for (auto callback: frameCallbackMap) {
         const int argc = 0;
         v8::Local<v8::Value> argv[argc] = {};
-        v8::Local<v8::Value> result;
-        mV8Runtime->performFunction(callback.second, argc, argv, result);
+        mV8Runtime->performFunction(callback.second, argc, argv);
     }
     mEGLCore->swapBuffer();
     checkGLError("doFrame");
@@ -94,6 +88,7 @@ void AgilV8App::destroy() {
 }
 
 bool AgilV8App::executeScript(const char *path, const char *moduleName) {
+    mV8Runtime = std::make_unique<AgilV8Runtime>(mAssetManager);
     injectBrowserAPI();
     injectAgil();
     std::string code = mAssetManager->readFile(path);
@@ -118,7 +113,7 @@ void AgilV8App::injectBrowserAPI() {
 }
 
 /**
- * let gl = agil.createContext('webgl');
+ * let gl = Agil.createContext('webgl');
  * gl.xxx
  */
 void AgilV8App::injectAgil() {
@@ -147,7 +142,7 @@ void AgilV8App::injectAgil() {
             }
     );
     auto agil = mV8Runtime->injectObject(mV8Runtime->global(), "Agil", agilMap, agilValue, this);
-    Agil.Reset(mV8Runtime->getIsolate(), agil);
+    mAgil.Reset(mV8Runtime->getIsolate(), agil);
 }
 
 v8::Local<v8::Object> AgilV8App::injectWebGL() {

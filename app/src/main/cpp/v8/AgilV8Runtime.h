@@ -38,8 +38,7 @@ public:
     v8::Local<v8::Value>
     performFunction(
             v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>> function,
-            int argc, v8::Local<v8::Value> argv[],
-            v8::Local<v8::Value> result);
+            int argc, v8::Local<v8::Value> argv[]);
 
     void injectNumberPropertiesToObject(v8::Local<v8::Object> host, const char *name, std::map<std::string, int> properties);
 

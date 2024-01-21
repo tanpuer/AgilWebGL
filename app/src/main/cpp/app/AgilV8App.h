@@ -30,10 +30,13 @@ public:
     void destroy();
 
     void doFrame(long time);
+
+public:
     
-    static long globalTime;
+    long mGlobalTime = 0L;
 
     int FRAME_INDEX = 0;
+
     std::map<int, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> frameCallbackMap;
 
     std::shared_ptr<AssetManager> mAssetManager;
@@ -49,9 +52,8 @@ private:
     v8::Local<v8::Object> injectWebGL();
 
     std::unique_ptr<EGLCore> mEGLCore;
-    int mWidth = 0, mHeight = 0;
 
-    v8::Global<v8::Object> Agil;
+    v8::Global<v8::Object> mAgil;
 
 };
 
