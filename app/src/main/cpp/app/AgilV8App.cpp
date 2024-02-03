@@ -70,6 +70,9 @@ void AgilV8App::change(int width, int height, long time) {
 }
 
 void AgilV8App::doFrame(long time) {
+    if (mEGLCore == nullptr) {
+        return;
+    }
     mGlobalTime = time;
     if (mEGLCore == nullptr || frameCallbackMap.empty()) {
         return;

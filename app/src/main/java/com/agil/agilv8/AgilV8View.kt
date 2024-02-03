@@ -14,42 +14,42 @@ class AgilV8View @JvmOverloads constructor(
         holder.addCallback(this)
     }
 
-    private val engine = AgilV8Engine()
+    private var engine: AgilV8Engine? = null
     private var created = false
     private var start = System.currentTimeMillis()
-    private var executed = false
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        engine.create(holder.surface)
         created = true
-        Choreographer.getInstance().postFrameCallback(this)
-        if (!executed) {
-            executed = true
+        if (engine != null) {
+            engine?.create(holder.surface)
+        } else {
+            engine = AgilV8Engine()
+            engine?.create(holder.surface)
 //            engine.executeJS("demo.js", "demo")
-            engine.executeJS("primitive.js", "primitive")
+            engine?.executeJS("primitive.js", "primitive")
         }
+        Choreographer.getInstance().postFrameCallback(this)
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        engine.change(width, height, System.currentTimeMillis() - start)
+        engine?.change(width, height, System.currentTimeMillis() - start)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         Choreographer.getInstance().removeFrameCallback(this)
         created = false
-        engine.destroy()
+        engine?.destroy()
     }
 
     override fun doFrame(frameTimeNanos: Long) {
         if (created) {
-            engine.doFrame(System.currentTimeMillis() - start)
+            engine?.doFrame(System.currentTimeMillis() - start)
             Choreographer.getInstance().postFrameCallback(this)
         }
     }
 
     fun release() {
-        engine.release()
-        executed = false
+        engine?.release()
     }
 
 }
