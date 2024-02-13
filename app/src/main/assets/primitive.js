@@ -1,3 +1,20 @@
+const positions = [
+    1.0, 1.0,
+    -1.0, 1.0,
+    -1.0, -1.0,
+    1.0, 1.0,
+    -1.0, -1.0,
+    1.0, -1.0,
+];
+
+const texCoords = [
+    1.0, 1.0,
+    0.0, 1.0,
+    0.0, 0.0,
+    1.0, 1.0,
+    0.0, 0.0,
+    1.0, 0.0
+];
 // 创建顶点着色器
 const vertexShaderSource = `#version 300 es
 
@@ -21,10 +38,6 @@ const vertexShaderSource = `#version 300 es
         gl_Position = aPosition;
     }
 `;
-let gl = Agil.createContext("webgl");
-const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-gl.shaderSource(vertexShader, vertexShaderSource);
-gl.compileShader(vertexShader);
 
 // 创建片段着色器
 const fragmentShaderSource = `#version 300 es
@@ -685,53 +698,48 @@ const fragmentShaderSource = `#version 300 es
                               }
 `;
 
-console.log(vertexShaderSource);
-console.log(fragmentShaderSource);
-const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-gl.shaderSource(fragmentShader, fragmentShaderSource);
-gl.compileShader(fragmentShader);
-
-// 创建着色器程序
-const program = gl.createProgram();
-gl.attachShader(program, vertexShader);
-gl.attachShader(program, fragmentShader);
-gl.linkProgram(program);
-gl.useProgram(program);
-
-console.log('program ', program, vertexShader, fragmentShader);
-
-const positions = [
-    1.0, 1.0,
-    -1.0, 1.0,
-    -1.0, -1.0,
-    1.0, 1.0,
-    -1.0, -1.0,
-    1.0, -1.0,
-];
-
-const texCoords = [
-    1.0, 1.0,
-    0.0, 1.0,
-    0.0, 0.0,
-    1.0, 1.0,
-    0.0, 0.0,
-    1.0, 0.0
-];
-
-// 创建顶点缓冲区
-const positionBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-gl.bindBuffer(gl.ARRAY_BUFFER, gl.NONE);
-
-// 创建纹理坐标缓冲区
-const texCoordBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
-gl.bindBuffer(gl.ARRAY_BUFFER, gl.NONE);
-
 let mFrameCount = 0;
 let start = new Date().getTime();
+
+let gl = null;
+let vertexShader = null;
+let fragmentShader = null;
+let program = null;
+let positionBuffer = null;
+let texCoordBuffer = null;
+
+function createContext() {
+    gl = Agil.createContext("webgl");
+    vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+
+    fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+
+    // 创建着色器程序
+    program = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    console.log('program ', program, vertexShader, fragmentShader);
+
+    // 创建顶点缓冲区
+    positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.NONE);
+
+    // 创建纹理坐标缓冲区
+    texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.NONE);
+}
+
 function setUniforms() {
     let timeMills = new Date().getTime() - start;
     //1. iResolution
@@ -774,6 +782,10 @@ function setAttributes() {
 }
 
 requestAnimationFrame(()=> {
+    if (gl == null) {
+        console.error("gl is null");
+        return;
+    }
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.useProgram(program);
 
@@ -786,4 +798,17 @@ requestAnimationFrame(()=> {
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.NONE);
+});
+
+registerSurfaceCreate(()=> {
+    createContext();
+});
+
+registerSurfaceDestroy(()=> {
+    if (gl != null) {
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+        gl.deleteProgram(program);
+        gl = null;
+    }
 });

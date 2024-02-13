@@ -41,6 +41,10 @@ public:
 
     std::shared_ptr<AssetManager> mAssetManager;
 
+    v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>> createCallback;
+
+    v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>> destroyCallback;
+
 private:
 
     std::unique_ptr<AgilV8Runtime> mV8Runtime;

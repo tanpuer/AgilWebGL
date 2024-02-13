@@ -37,9 +37,11 @@
 #include "webgl/glUniform2fvFunc.h"
 #include "webgl/glUniform3fvFunc.h"
 #include "webgl/glUniform1fFunc.h"
+#include "webgl/glDeleteProgram.h"
 #include "browser/console.h"
 #include "browser/timer.h"
 #include "browser/animationFrame.h"
+#include "browser/surface.h"
 
 AgilV8App::AgilV8App(JNIEnv *env, jobject javaAssetManager) {
     mAssetManager = std::make_shared<AssetManager>(env, javaAssetManager);
@@ -53,10 +55,23 @@ AgilV8App::~AgilV8App() {
     mV8Runtime.reset(nullptr);
 }
 
+bool AgilV8App::executeScript(const char *path, const char *moduleName) {
+    mV8Runtime = std::make_unique<AgilV8Runtime>(mAssetManager);
+    injectBrowserAPI();
+    injectAgil();
+    std::string code = mAssetManager->readFile(path);
+    auto result = mV8Runtime->evaluateJavaScript(code, moduleName);
+    checkGLError("executeScript");
+    return result;
+}
+
 void AgilV8App::create(ANativeWindow *window) {
     mEGLCore = std::make_unique<EGLCore>();
     mEGLCore->createGLEnv(nullptr, window, 0, 0, false);
     mEGLCore->makeCurrent();
+    if (!createCallback.IsEmpty()) {
+        mV8Runtime->performFunction(createCallback, 0, nullptr);
+    }
 }
 
 void AgilV8App::change(int width, int height, long time) {
@@ -87,17 +102,10 @@ void AgilV8App::doFrame(long time) {
 }
 
 void AgilV8App::destroy() {
+    if (!destroyCallback.IsEmpty()) {
+        mV8Runtime->performFunction(destroyCallback, 0, nullptr);
+    }
     mEGLCore.reset(nullptr);
-}
-
-bool AgilV8App::executeScript(const char *path, const char *moduleName) {
-    mV8Runtime = std::make_unique<AgilV8Runtime>(mAssetManager);
-    injectBrowserAPI();
-    injectAgil();
-    std::string code = mAssetManager->readFile(path);
-    auto result = mV8Runtime->evaluateJavaScript(code, moduleName);
-    checkGLError("executeScript");
-    return result;
 }
 
 void AgilV8App::injectBrowserAPI() {
@@ -120,6 +128,7 @@ void AgilV8App::injectBrowserAPI() {
  * gl.xxx
  */
 void AgilV8App::injectAgil() {
+    mV8Runtime->injectFunction("registerSurfaceCreate", registerSurfaceCreate, this);
     auto createContext = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         auto data = v8::Local<v8::External>::Cast(args.Data());
         auto app = static_cast<AgilV8App *>(data->Value());
@@ -169,6 +178,7 @@ v8::Local<v8::Object> AgilV8App::injectWebGL() {
                     {"viewport",                glViewportFunc},
                     {"useProgram",              glUseProgramFunc},
                     {"getShaderParameter",      glGetShaderParameterFunc},
+                    {"deleteProgram",           glDeleteProgramFunc},
                     {"deleteShader",            glDeleteShaderFunc},
                     {"drawArrays",              glDrawArraysFunc},
                     {"createTexture",           glCreateTextureFunc},

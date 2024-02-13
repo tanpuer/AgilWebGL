@@ -24,9 +24,9 @@ class AgilV8View @JvmOverloads constructor(
             engine?.create(holder.surface)
         } else {
             engine = AgilV8Engine()
-            engine?.create(holder.surface)
 //            engine.executeJS("demo.js", "demo")
             engine?.executeJS("primitive.js", "primitive")
+            engine?.create(holder.surface)
         }
         Choreographer.getInstance().postFrameCallback(this)
     }
