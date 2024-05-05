@@ -7,6 +7,7 @@
     tools:context=".AgilV8Activity">
 
     <com.agil.agilv8.AgilV8View
+        android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

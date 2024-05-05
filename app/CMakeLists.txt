@@ -10,6 +10,7 @@ include_directories(
         src/main/cpp/app
         src/main/cpp/webgl
         src/main/cpp/browser
+        src/main/cpp/node
 )
 
 aux_source_directory(src/main/cpp srcs)
@@ -18,6 +19,7 @@ aux_source_directory(src/main/cpp/v8 srcs)
 aux_source_directory(src/main/cpp/app srcs)
 aux_source_directory(src/main/cpp/webgl srcs)
 aux_source_directory(src/main/cpp/browser srcs)
+aux_source_directory(src/main/cpp/node srcs)
 
 add_library(agilV8 SHARED ${srcs})
 

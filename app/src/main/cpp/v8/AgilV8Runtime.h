@@ -1,9 +1,4 @@
-//
-// Created by banma-3412 on 2023/12/2.
-//
-
-#ifndef AGILV8_AGILV8RUNTIME_H
-#define AGILV8_AGILV8RUNTIME_H
+#pragma once
 
 #include "memory"
 #include "v8.h"
@@ -40,13 +35,17 @@ public:
             v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>> function,
             int argc, v8::Local<v8::Value> argv[]);
 
-    void injectNumberPropertiesToObject(v8::Local<v8::Object> host, const char *name, std::map<std::string, int> properties);
+    void injectNumberPropertiesToObject(v8::Local<v8::Object> host, const char *name,
+                                        std::map<std::string, int> properties);
 
     void injectDate(std::function<void(v8::Isolate *)> registerObject);
 
     std::string utf8(const v8::Local<v8::Value> &value);
 
     v8::Local<v8::Object> global();
+
+    void injectClass(const char *className, v8::FunctionCallback constructorFunc,
+                     std::map<const char *, v8::FunctionCallback> funcMap, void *any = nullptr);
 
 private:
 
@@ -63,6 +62,3 @@ private:
     void ReportException(v8::TryCatch *tryCatch) const;
 
 };
-
-
-#endif //AGILV8_AGILV8RUNTIME_H

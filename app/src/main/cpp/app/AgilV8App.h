@@ -1,9 +1,4 @@
-//
-// Created by banma-3412 on 2023/12/2.
-//
-
-#ifndef AGILV8_AGILV8APP_H
-#define AGILV8_AGILV8APP_H
+#pragma once
 
 #include "jni.h"
 #include "AgilV8Runtime.h"
@@ -32,7 +27,7 @@ public:
     void doFrame(long time);
 
 public:
-    
+
     long mGlobalTime = 0L;
 
     int FRAME_INDEX = 0;
@@ -55,11 +50,10 @@ private:
 
     v8::Local<v8::Object> injectWebGL();
 
+    void injectNodeApi();
+
     std::unique_ptr<EGLCore> mEGLCore;
 
     v8::Global<v8::Object> mAgil;
 
 };
-
-
-#endif //AGILV8_AGILV8APP_H

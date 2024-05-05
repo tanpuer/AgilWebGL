@@ -1,10 +1,4 @@
-//
-// Created by cw404021@alibaba-inc.com on 2023/11/27.
-//
-
-#ifndef SHADERTOYANDROID_ASSETMANAGER_H
-#define SHADERTOYANDROID_ASSETMANAGER_H
-
+#pragma once
 
 #include <android/asset_manager_jni.h>
 
@@ -23,11 +17,10 @@ public:
 
     ImageData *readImage(const char *path);
 
+    bool exist(const char *path);
+
 private:
 
     AAssetManager *asset_manager = nullptr;
 
 };
-
-
-#endif //SHADERTOYANDROID_ASSETMANAGER_H

@@ -231,3 +231,26 @@ v8::Local<v8::Object> AgilV8Runtime::global() {
     v8::Context::Scope scopedContext(mContext.Get(mIsolate));
     return mContext.Get(mIsolate)->Global();
 }
+
+void AgilV8Runtime::injectClass(const char *className, v8::FunctionCallback constructorFunc,
+                                std::map<const char *, v8::FunctionCallback> funcMap, void *any) {
+    v8::Locker locker(mIsolate);
+    v8::Isolate::Scope scopedIsolate(mIsolate);
+    v8::HandleScope scopedHandle(mIsolate);
+    v8::Context::Scope scopedContext(mContext.Get(mIsolate));
+    // 准备构造函数模板
+    v8::Local<v8::External> external_context_data = v8::External::New(mIsolate, any);
+    v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(mIsolate, constructorFunc,
+                                                                    external_context_data);
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    tpl->SetClassName(v8::String::NewFromUtf8(mIsolate, className));
+    // 添加方法
+    for (const auto &item: funcMap) {
+        v8::Local<v8::FunctionTemplate> readTpl = v8::FunctionTemplate::New(mIsolate, item.second);
+        tpl->PrototypeTemplate()->Set(mIsolate, item.first, readTpl);
+    }
+    // 注册构造函数
+    v8::Local<v8::Function> constructor = tpl->GetFunction();
+    auto global = mContext.Get(mIsolate)->Global();
+    global->Set(v8::String::NewFromUtf8(mIsolate, className), constructor);
+}
