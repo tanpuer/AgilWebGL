@@ -233,6 +233,7 @@ v8::Local<v8::Object> AgilV8Runtime::global() {
 }
 
 void AgilV8Runtime::injectClass(const char *className, v8::FunctionCallback constructorFunc,
+                                int fieldCount,
                                 std::map<const char *, v8::FunctionCallback> funcMap, void *any) {
     v8::Locker locker(mIsolate);
     v8::Isolate::Scope scopedIsolate(mIsolate);
@@ -242,7 +243,7 @@ void AgilV8Runtime::injectClass(const char *className, v8::FunctionCallback cons
     v8::Local<v8::External> external_context_data = v8::External::New(mIsolate, any);
     v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(mIsolate, constructorFunc,
                                                                     external_context_data);
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    tpl->InstanceTemplate()->SetInternalFieldCount(fieldCount);
     tpl->SetClassName(v8::String::NewFromUtf8(mIsolate, className));
     // 添加方法
     for (const auto &item: funcMap) {

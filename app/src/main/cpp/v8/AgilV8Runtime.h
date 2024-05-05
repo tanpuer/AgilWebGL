@@ -44,7 +44,7 @@ public:
 
     v8::Local<v8::Object> global();
 
-    void injectClass(const char *className, v8::FunctionCallback constructorFunc,
+    void injectClass(const char *className, v8::FunctionCallback constructorFunc, int fieldCount,
                      std::map<const char *, v8::FunctionCallback> funcMap, void *any = nullptr);
 
 private:

@@ -272,5 +272,5 @@ void AgilV8App::injectNodeApi() {
                     }},
             }
     );
-    mV8Runtime->injectClass("File", fileConstructor, fileFuncMap, this);
+    mV8Runtime->injectClass("File", fileConstructor, 1, fileFuncMap, this);
 }
