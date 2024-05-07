@@ -52,6 +52,8 @@ private:
 
     void injectNodeApi();
 
+    void injectFileApi();
+
     std::unique_ptr<EGLCore> mEGLCore;
 
     v8::Global<v8::Object> mAgil;

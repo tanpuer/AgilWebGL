@@ -232,6 +232,10 @@ v8::Local<v8::Object> AgilV8App::injectWebGL() {
 }
 
 void AgilV8App::injectNodeApi() {
+    injectFileApi();
+}
+
+void AgilV8App::injectFileApi() {
     auto fileConstructor = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
         auto isolate = args.GetIsolate();
         if (args.IsConstructCall()) {
