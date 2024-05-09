@@ -47,6 +47,8 @@ public:
     void injectClass(const char *className, v8::FunctionCallback constructorFunc, int fieldCount,
                      std::map<const char *, v8::FunctionCallback> funcMap, void *any = nullptr);
 
+    void injectString(const char *name, const char *value);
+
 private:
 
     std::shared_ptr<AssetManager> mAssetManager;

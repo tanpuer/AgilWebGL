@@ -233,6 +233,7 @@ v8::Local<v8::Object> AgilV8App::injectWebGL() {
 
 void AgilV8App::injectNodeApi() {
     injectFileApi();
+    injectPathApi();
 }
 
 void AgilV8App::injectFileApi() {
@@ -277,4 +278,26 @@ void AgilV8App::injectFileApi() {
             }
     );
     mV8Runtime->injectClass("File", fileConstructor, 1, fileFuncMap, this);
+}
+
+void AgilV8App::injectPathApi() {
+    auto resolve = [](const v8::FunctionCallbackInfo<v8::Value> &args) {
+        auto data = v8::Local<v8::External>::Cast(args.Data());
+        auto app = static_cast<AgilV8App *>(data->Value());
+        assert(app);
+        auto isolate = args.GetIsolate();
+        for (int i = 0; i < args.Length(); ++i) {
+            v8::String::Utf8Value str(isolate, args[i]);
+            std::string path(*str);
+            ALOGD("Path resolve %s", path.c_str())
+        }
+    };
+    std::map<std::string, v8::FunctionCallback> pathMap(
+            {
+                    {"resolve", resolve}
+            }
+    );
+    mV8Runtime->injectObject(mV8Runtime->global(), "path", pathMap,
+                             std::map<std::string, std::string>(), this);
+    mV8Runtime->injectString("__dirname", "assets");
 }

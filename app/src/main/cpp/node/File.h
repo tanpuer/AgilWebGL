@@ -14,7 +14,7 @@ public:
 
     void operator=(File &file) = delete;
 
-    File(std::string path, AgilV8App* assetManager);
+    File(std::string path, AgilV8App* app);
 
     bool exist();
 

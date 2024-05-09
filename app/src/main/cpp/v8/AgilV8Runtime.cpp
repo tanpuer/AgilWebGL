@@ -255,3 +255,13 @@ void AgilV8Runtime::injectClass(const char *className, v8::FunctionCallback cons
     auto global = mContext.Get(mIsolate)->Global();
     global->Set(v8::String::NewFromUtf8(mIsolate, className), constructor);
 }
+
+void AgilV8Runtime::injectString(const char *name, const char *value) {
+    v8::Locker locker(mIsolate);
+    v8::Isolate::Scope scopedIsolate(mIsolate);
+    v8::HandleScope scopedHandle(mIsolate);
+    v8::Context::Scope scopedContext(mContext.Get(mIsolate));
+    auto global = mContext.Get(mIsolate)->Global();
+    auto result = global->Set(v8::String::NewFromUtf8(mIsolate, name),
+                              v8::String::NewFromUtf8(mIsolate, value));
+}
