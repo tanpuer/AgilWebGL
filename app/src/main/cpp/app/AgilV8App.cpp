@@ -286,11 +286,20 @@ void AgilV8App::injectPathApi() {
         auto app = static_cast<AgilV8App *>(data->Value());
         assert(app);
         auto isolate = args.GetIsolate();
+        std::string result = "";
         for (int i = 0; i < args.Length(); ++i) {
             v8::String::Utf8Value str(isolate, args[i]);
             std::string path(*str);
-            ALOGD("Path resolve %s", path.c_str())
+            if (path == "assets") {
+                result.append(path).append("://");
+            } else {
+                result.append(path);
+                if (i != args.Length() - 1) {
+                    result.append("/");
+                }
+            }
         }
+        ALOGD("Path resolve is %s", result.c_str())
     };
     std::map<std::string, v8::FunctionCallback> pathMap(
             {

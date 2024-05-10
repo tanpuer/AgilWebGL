@@ -264,4 +264,5 @@ void AgilV8Runtime::injectString(const char *name, const char *value) {
     auto global = mContext.Get(mIsolate)->Global();
     auto result = global->Set(v8::String::NewFromUtf8(mIsolate, name),
                               v8::String::NewFromUtf8(mIsolate, value));
+    ALOGD("global set string: %s result: %d", name, result)
 }

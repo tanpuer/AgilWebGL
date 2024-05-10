@@ -4,4 +4,4 @@ let content = file.read();
 console.log("result is ", result, content);
 
 console.log("__dirname is ", __dirname);
-path.resolve("test", "demo.js");
+path.resolve(__dirname, "demo.js");
